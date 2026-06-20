@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build frontend
+        run: pnpm web:build
+
+      # Optional deploy job — requires repo secret CLOUDFLARE_API_TOKEN.
+      # Not enabled by default. To enable: set the secret in repo settings,
+      # then uncomment the deploy job below. CI itself runs without it.
+      #
+      # deploy:
+      #   needs: build
+      #   if: github.ref == 'refs/heads/main'
+      #   runs-on: ubuntu-latest
+      #   steps:
+      #     - uses: actions/checkout@v4
+      #     - uses: pnpm/action-setup@v4
+      #       with:
+      #         version: 9
+      #     - uses: actions/setup-node@v4
+      #       with:
+      #         node-version: '20'
+      #         cache: 'pnpm'
+      #     - run: pnpm install --frozen-lockfile
+      #     - run: pnpm web:build
+      #     - name: Deploy to Cloudflare Workers
+      #       uses: cloudflare/wrangler-action@v3
+      #       with:
+      #         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      #         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      #         command: deploy
