@@ -1,0 +1,33 @@
+name = "chat-saas"
+main = "src/index.ts"
+compatibility_date = "2025-04-01"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "chat-saas"
+database_id = "6d0290c2-281a-457c-b75d-cfadf40e4290"
+migrations_dir = "migrations"
+
+# Durable Objects binding
+[[durable_objects.bindings]]
+name = "CHAT_ROOM"
+class_name = "ChatRoomDO"
+
+# Static assets for Pages-style frontend
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+# DO migrations (declares the class lives in this Worker).
+# Free plan requires new_sqlite_classes (backed by SQLite storage) instead of
+# the legacy new_classes (Key-Value backed, paid plan only).
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ChatRoomDO"]
+
+# Auth (round 3): HS256 JWT signing secret.
+# NOT declared here — remote secret is set via `wrangler secret put JWT_SECRET`.
+# For local `wrangler dev` without a .dev.vars, set JWT_SECRET there.
+# (Declaring it in [vars] would silently override the remote Workers Secret.)
